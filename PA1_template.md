@@ -1,18 +1,27 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r echo=TRUE}
+
+```r
 ## load the packages
 library(knitr)
+```
+
+```
+## Warning: package 'knitr' was built under R version 3.1.2
+```
+
+```r
 library(lubridate)
 library(ggplot2)
+```
 
+```
+## Warning: package 'ggplot2' was built under R version 3.1.2
+```
+
+```r
 ##Loading data from CSV to the memory for processing.
 source.data<-read.csv("./activity.csv")
 
@@ -32,8 +41,8 @@ p.data[(p.data$weekdays%in% c("Sat","Sun")),5]<-"Weekends"
 
 
 ## What is mean total number of steps taken per day?
-```{r echo=TRUE}
 
+```r
 ##Summarize the steps by date
 sum.bydate<-aggregate(p.data$steps,by=as.data.frame(p.data$date),FUN=sum)
 
@@ -43,14 +52,34 @@ names(sum.bydate)<-c("date","steps")
 ## Display steps by date
 p<-ggplot(sum.bydate,aes(x=date,y=steps))
 p+geom_histogram(stat="identity")
+```
 
+```
+## Warning: Removed 8 rows containing missing values (position_stack).
+```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
+```r
 ##Calcuate the mean and median for the dataset which is summarized by all date.
 paste("Mean:",round(mean(sum.bydate$steps,na.rm=TRUE)))
+```
+
+```
+## [1] "Mean: 10766"
+```
+
+```r
 paste("Median:",median(sum.bydate$steps,na.rm=TRUE))
 ```
 
+```
+## [1] "Median: 10765"
+```
+
 ## What is the average daily activity pattern?
-```{r echo=TRUE}
+
+```r
 ##Calculate the mean of the steps by interval
 sum.byinterval<-aggregate(p.data$steps,by=as.data.frame(p.data$interval),FUN=mean,na.rm=TRUE)
 
@@ -60,17 +89,31 @@ names(sum.byinterval)<-c("interval","steps")
 ## Display steps by interval
 p<-ggplot(sum.byinterval,aes(x=interval,y=steps))
 p+geom_line(size=1)
+```
 
+![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 ## Display the maximum steps in those interval
 paste("Maximum steps is:",sum.byinterval[sum.byinterval$steps==max(sum.byinterval$steps),1])
+```
 
+```
+## [1] "Maximum steps is: 835"
 ```
 
 ## Imputing missing values
-```{r echo=TRUE}
+
+```r
 ##Calcuate the total rows whose value is NA
 paste("Total rows of missing value is:",nrow(p.data[is.na(p.data$steps),]))
+```
 
+```
+## [1] "Total rows of missing value is: 2304"
+```
+
+```r
 ##Calculate the mean of the steps by interval
 wd<-p.data[(!is.na(p.data$steps))&(p.data$t_days=="Weekdays"),]
 wd.byinterval<-aggregate(wd$steps,by=as.data.frame(wd$interval),FUN=mean,na.rm=TRUE)
@@ -129,8 +172,11 @@ s.byinterval$steps<-round(s.byinterval$steps)
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r echo=TRUE}
+
+```r
 ## Display steps by interval
 p<-ggplot(s.byinterval,aes(x=interval,y=steps))
 p+geom_line(size=1)+facet_wrap(~t_days,nrow=2,ncol=1) 
 ```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-5-1.png) 

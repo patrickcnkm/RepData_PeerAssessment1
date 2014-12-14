@@ -1,15 +1,7 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+## set working directory for CSV processing.
+setwd("C:/My Documents/My Private/01_Myself/01_Learning/03_IT/Data Science/06_Reproducible Research/01_Assignment_01")
 
-
-## Loading and preprocessing the data
-```{r echo=TRUE}
 ## load the packages
-library(knitr)
 library(lubridate)
 library(ggplot2)
 
@@ -17,25 +9,24 @@ library(ggplot2)
 source.data<-read.csv("./activity.csv")
 
 ##process the source data with adding 2 variables (weekdays,t_days)
+
+
 ##weekdays stores the name of weekdays.
 ##t_days means types of weekdays,that indicate the date is weekday or weekend.
+
 p.data<-source.data
 p.data[,c(4,5)]<-""
 names(p.data)[c(4,5)]<-c("weekdays","t_days")
 
-##convert the date into the lubricate format and attribute those to either weekdays or weekends
+
 p.data$date<-ymd(p.data$date)
 p.data$weekdays<-weekdays(p.data$date,abbreviate=TRUE)
 p.data[!(p.data$weekdays%in% c("Sat","Sun")),5]<-"Weekdays"
 p.data[(p.data$weekdays%in% c("Sat","Sun")),5]<-"Weekends"
-```
 
-
-## What is mean total number of steps taken per day?
-```{r echo=TRUE}
 
 ##Summarize the steps by date
-sum.bydate<-aggregate(p.data$steps,by=as.data.frame(p.data$date),FUN=sum)
+sum.bydate<-aggregate(p.data$p_steps,by=as.data.frame(p.data$date),FUN=sum)
 
 ##change the variables' names in the summarized table
 names(sum.bydate)<-c("date","steps")
@@ -45,12 +36,9 @@ p<-ggplot(sum.bydate,aes(x=date,y=steps))
 p+geom_histogram(stat="identity")
 
 ##Calcuate the mean and median for the dataset which is summarized by all date.
-paste("Mean:",round(mean(sum.bydate$steps,na.rm=TRUE)))
-paste("Median:",median(sum.bydate$steps,na.rm=TRUE))
-```
+mean(sum.bydate$steps,na.rm=TRUE)
+median(sum.bydate$steps,na.rm=TRUE)
 
-## What is the average daily activity pattern?
-```{r echo=TRUE}
 ##Calculate the mean of the steps by interval
 sum.byinterval<-aggregate(p.data$steps,by=as.data.frame(p.data$interval),FUN=mean,na.rm=TRUE)
 
@@ -62,17 +50,15 @@ p<-ggplot(sum.byinterval,aes(x=interval,y=steps))
 p+geom_line(size=1)
 
 ## Display the maximum steps in those interval
-paste("Maximum steps is:",sum.byinterval[sum.byinterval$steps==max(sum.byinterval$steps),1])
+sum.byinterval[sum.byinterval$steps==max(sum.byinterval$steps),1]
 
-```
 
-## Imputing missing values
-```{r echo=TRUE}
 ##Calcuate the total rows whose value is NA
-paste("Total rows of missing value is:",nrow(p.data[is.na(p.data$steps),]))
+nrow(p.data[is.na(p.data$steps),])
 
 ##Calculate the mean of the steps by interval
 wd<-p.data[(!is.na(p.data$steps))&(p.data$t_days=="Weekdays"),]
+
 wd.byinterval<-aggregate(wd$steps,by=as.data.frame(wd$interval),FUN=mean,na.rm=TRUE)
 
 ##change the variables' names in the summarized table
@@ -81,9 +67,10 @@ names(wd.byinterval)<-c("interval","steps")
 ##round the steps
 wd.byinterval$steps<-round(wd.byinterval$steps)
 
-##Create the simulated steps for those days in weekdays
 wd.na.date<-unique(p.data[(is.na(p.data$steps)&(p.data$t_days=="Weekdays")),]$date)
+
 wd.len<-length(wd.na.date)
+
 for (x in 1:wd.len)
 {
   if (x==1)
@@ -91,6 +78,7 @@ for (x in 1:wd.len)
     else
     wd.na<-rbind(wd.na,cbind("date"=wd.na.date[x],wd.byinterval))
 }
+   
 wd.na$t_days<-"Weekdays"
 
 ##Calculate the mean of the steps by interval for weekend
@@ -104,9 +92,10 @@ names(we.byinterval)<-c("interval","steps")
 ##round the steps
 we.byinterval$steps<-round(we.byinterval$steps)
 
-##Create the simulated steps for those days in weekends
 we.na.date<-unique(p.data[(is.na(p.data$steps)&(p.data$t_days=="Weekends")),]$date)
+
 we.len<-length(we.na.date)
+
 for (x in 1:we.len)
 {
   if (x==1)
@@ -126,11 +115,7 @@ s.byinterval<-aggregate(s.data$steps,by=s.data[,c(2,4)],FUN=mean,na.rm=TRUE)
 names(s.byinterval)[3]<-"steps"
 
 s.byinterval$steps<-round(s.byinterval$steps)
-```
 
-## Are there differences in activity patterns between weekdays and weekends?
-```{r echo=TRUE}
 ## Display steps by interval
 p<-ggplot(s.byinterval,aes(x=interval,y=steps))
 p+geom_line(size=1)+facet_wrap(~t_days,nrow=2,ncol=1) 
-```
