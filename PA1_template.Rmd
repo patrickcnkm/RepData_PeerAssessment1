@@ -121,6 +121,16 @@ we.na$t_days<-"Weekends"
 ##Combine the simulated data and actual data without NA
 s.data<-rbind(we.na,wd.na,p.data[!is.na(p.data$steps),c(2,3,1,5)])
 
+##Summarize the steps by date
+s.bydate<-aggregate(s.data$steps,by=as.data.frame(s.data$date),FUN=sum)
+
+##change the variables' names in the summarized table
+names(s.bydate)<-c("date","steps")
+
+## Display steps by date
+p<-ggplot(s.bydate,aes(x=date,y=steps))
+p+geom_histogram(stat="identity")
+
 ##Calculate the mean of the steps by interval
 s.byinterval<-aggregate(s.data$steps,by=s.data[,c(2,4)],FUN=mean,na.rm=TRUE)
 
